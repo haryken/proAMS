@@ -1,0 +1,88 @@
+/* make the customizations */
+$theme-colors: (
+    "primary": #CF2338
+);
+$primary-color: #CF2338;
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+ul,ol {
+    list-style: none;
+}
+
+a {
+    text-decoration: none !important;
+}
+
+span.error-message {
+    display: block;
+    color: #CF2338;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+.form-header {
+    color: #CF2338;
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+.form-check > *,
+.form-check {
+    cursor: pointer;
+}
+
+
+input[type='radio']:after {
+    width: 20px;
+    height: 20px;
+    border-radius: 15px;
+    top: -2px;
+    left: -1px;
+    position: relative;
+    background-color: #d1d3d1;
+    content: '';
+    display: inline-block;
+    visibility: visible;
+    border: 1px solid #000;
+}
+
+input[type='radio']:checked:after {
+    width: 20px;
+    height: 20px;
+    border-radius: 15px;
+    top: -2px;
+    left: -1px;
+    position: relative;
+    background-color: #CF2338;
+    content: '';
+    display: inline-block;
+    visibility: visible;
+    border: 1px solid #000;
+}
+
+// Card
+.card {
+    .card-header {
+        color: #CF2338;
+        background-color: #EFF1F5;
+        font-weight: bold;
+    }
+
+    .card-body {
+        background-color: #FAFCFC;
+    }
+}
+
+.form-label {
+    .required-icon {
+        color: #CF2338;
+    }
+}
+
+@import "~bootstrap/scss/bootstrap";
