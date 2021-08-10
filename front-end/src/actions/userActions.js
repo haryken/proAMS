@@ -9,8 +9,14 @@ import {
   CREATE_USER_REQUEST,
   CREATE_USER_SUCCESS,
   CREATE_USER_FAIL,
+  GET_USER_REQUEST,
+  GET_USER_SUCCESS,
+  GET_USER_FAIL,
   STORE_USER,
   REMOVE_STORE_USER,
+  EDIT_USER_REQUEST,
+  EDIT_USER_SUCCESS,
+  EDIT_USER_FAIL,
 } from '../constants';
 import { getErrorMessageFromResponse, createAuthorizedRequestHeader } from '../utils';
 
@@ -64,36 +70,21 @@ export const login =
 
 export const createUser =
   ({ firstName, lastName, dateOfBirth, joinedDate, gender, userType }) =>
-  async (dispatch, getState) => {
+  async (dispatch) => {
     dispatch({
       type: CREATE_USER_REQUEST,
     });
-    const {
-      authReducer: { userData },
-    } = getState();
     try {
-      const res = await axios.post(
-        `${USERS_URL}`,
-        {
-          firstName,
-          lastName,
-          dateOfBirth,
-          joinedDate,
-          gender,
-          userType,
-        },
-        {
-          headers: {
-            Authorization: createAuthorizedRequestHeader(userData),
-          },
-        }
-      );
-      dispatch({
-        type: CREATE_USER_SUCCESS,
-        payload: res.data,
+      const res = await axios.post(`${USERS_URL}`, {
+        firstName,
+        lastName,
+        dateOfBirth,
+        joinedDate,
+        gender,
+        userType,
       });
       dispatch({
-        type: STORE_USER,
+        type: CREATE_USER_SUCCESS,
         payload: res.data,
       });
     } catch (error) {
@@ -109,3 +100,68 @@ export const removeStoreUser = () => (dispatch) => {
     type: REMOVE_STORE_USER,
   });
 };
+
+export const getUser = (id) => async (dispatch, getState) => {
+  dispatch({
+    type: GET_USER_REQUEST,
+  });
+  const {
+    authReducer: { userData },
+  } = getState();
+  try {
+    const res = await axios.get(`${USERS_URL}/${id}`, {
+      headers: {
+        Authorization: createAuthorizedRequestHeader(userData),
+      },
+    });
+    dispatch({
+      type: GET_USER_SUCCESS,
+      payload: res.data,
+    });
+  } catch (error) {
+    dispatch({
+      type: GET_USER_FAIL,
+      payload: getErrorMessageFromResponse(error),
+    });
+  }
+};
+
+export const editUser =
+  (id, dateOfBirth, joinedDate, gender, userType) => async (dispatch, getState) => {
+    dispatch({
+      type: EDIT_USER_REQUEST,
+    });
+    const {
+      authReducer: { userData },
+    } = getState();
+    try {
+      const res = await axios.put(
+        `${USERS_URL}`,
+        {
+          id,
+          dateOfBirth,
+          joinedDate,
+          gender,
+          userType,
+        },
+        {
+          headers: {
+            Authorization: createAuthorizedRequestHeader(userData),
+          },
+        }
+      );
+      dispatch({
+        type: EDIT_USER_SUCCESS,
+        payload: res.data,
+      });
+      dispatch({
+        type: STORE_USER,
+        payload: res.data,
+      });
+    } catch (error) {
+      dispatch({
+        type: EDIT_USER_FAIL,
+        payload: getErrorMessageFromResponse(error),
+      });
+    }
+  };

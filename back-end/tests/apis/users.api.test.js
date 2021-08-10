@@ -1,38 +1,21 @@
 /* eslint-disable no-await-in-loop */
 const request = require('supertest');
 const app = require('../../app');
-const { Users } = require('../../models');
-const { encrypt } = require('../../utils/encryptor');
 
 const mainApiURL = `/api/v1/users`;
 
 describe('Users API', () => {
   test(`POST ${mainApiURL}/login -> return the logged in user along with a token`, async () => {
     const userData = {
-      firstName: 'Long',
-      lastName: 'Nguyen Tran Phan',
-      dateOfBirth: '2000-07-30',
-      gender: 'Male',
-      joinedDate: '2021-08-02',
-      userType: 'Admin',
-      staffCode: 'SD0001',
       username: 'longntp',
-      userLocation: 'HCM',
-      password: encrypt('123456'),
+      password: '123456',
     };
-
-    const user = await Users.create(userData);
 
     const response = await request(app)
       .post(`${mainApiURL}/login`)
-      .send({
-        username: user.username,
-        password: '123456',
-      })
+      .send(userData)
       .expect('Content-Type', /json/)
       .expect(200);
-
-    await user.destroy();
 
     expect(response.body).toEqual(
       expect.objectContaining({

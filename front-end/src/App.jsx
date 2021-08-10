@@ -7,6 +7,7 @@ import { Layout } from './components/Layout';
 import { HomePage } from './pages/Home';
 import { LoginPage } from './pages/Login';
 import { CreateUserPage } from './pages/CreateUser';
+import { EditUserPage } from './pages/EditUser';
 
 function App() {
   return (
@@ -19,7 +20,7 @@ function App() {
             <Route exact path="/login" component={LoginPage} />
             <Route exact path="/users" component={() => <h1>Manage Users</h1>} />
             <Route exact path="/users/create" component={CreateUserPage} />
-            <Route exact path="/users/edit/:id" component={() => <h1>Edit Users</h1>} />
+            <Route exact path="/users/edit/:id" component={EditUserPage} />
             <Route exact path="/assets" component={() => <h1>Manage Assets</h1>} />
             <Route exact path="/assets/create" component={() => <h1>Create Assets</h1>} />
             <Route exact path="/assets/edit/:id" component={() => <h1>Edit Assets</h1>} />

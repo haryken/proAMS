@@ -21,7 +21,19 @@ function validateCreateUser(req, res, next) {
   validateRequest(req, next, schema);
 }
 
+function validateEditUser(req, res, next) {
+  const schema = Joi.object({
+    id: Joi.string().required(),
+    dateOfBirth: Joi.string().required(),
+    joinedDate: Joi.string().required(),
+    gender: Joi.string().required(),
+    userType: Joi.string().required(),
+  });
+  validateRequest(req, next, schema);
+}
+
 module.exports = {
   validateUserLogin,
   validateCreateUser,
+  validateEditUser,
 };

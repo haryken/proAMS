@@ -4,10 +4,9 @@ import { FormGroup, FormLabel, Row, Col } from 'react-bootstrap';
 import * as Yup from 'yup';
 import { differenceInYears, getISODay } from 'date-fns';
 import { useDispatch, useSelector } from 'react-redux';
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import { useHistory } from 'react-router-dom';
 import { createUser } from '../../../actions';
-import { createToast } from '../../../utils';
 
 const CreateUserForm = () => {
   const initialValues = {
@@ -24,7 +23,7 @@ const CreateUserForm = () => {
   const { loading, error } = useSelector((state) => state.createUserReducer);
   const validationSchema = Yup.object().shape({
     firstName: Yup.string()
-      .required('First name is a required field')
+      .required()
       .max(255)
       .test('firstName', 'First name do not include spaces!', (value) => {
         if (value) {
@@ -33,7 +32,7 @@ const CreateUserForm = () => {
         return true;
       }),
     lastName: Yup.string()
-      .required('Last name is a required field')
+      .required()
       .max(255)
       .test('lastName', 'The end of the last name cannot be a space!', (value) => {
         if (value) {
@@ -42,38 +41,48 @@ const CreateUserForm = () => {
         return true;
       }),
     dateOfBirth: Yup.date()
-      .required('Date of birth is a required field')
+      .required()
       .test(
         'dateOfBirth',
-        'Date of birth must be before current date!',
+        'Date of birth must be after current date!',
         (value) => new Date(value) < new Date()
       )
       .test(
         'dateOfBirth',
         'User is under 18. Please select a different date',
         (value) => differenceInYears(new Date(), new Date(value)) >= 18
-      )
-      .test('dateOfBirth', 'User is under 18. Please select a different date', (value, ctx) => {
-        if (!ctx.parent.joinedDate) {
-          return true;
-        }
-        return differenceInYears(ctx.parent.joinedDate, new Date(value)) >= 18;
-      }),
-    gender: Yup.string().required('Gender is a required field').max(10),
+      ),
+    gender: Yup.string().required().max(10),
     joinedDate: Yup.date()
-      .required('Joined date is a required field')
-      .min(Yup.ref('dateOfBirth'), 'Joined date must be after Date of Birth.')
+      .required()
+      .min(Yup.ref('dateOfBirth'), 'Joined date is not later than Date of Birth.')
+      .test(
+        'joinedDate',
+        'Difference between DOB and joined date should be greater than 18',
+        (value, ctx) => {
+          const dob = ctx.parent.dateOfBirth;
+          return differenceInYears(new Date(value), dob) >= 18;
+        }
+      )
       .test(
         'joinedDate',
         'Joined date is Saturday or Sunday. Please select a different date',
         (value) => getISODay(new Date(value)) !== 7 && getISODay(new Date(value)) !== 6
       ),
-    userType: Yup.string().required('User type is a required field').max(20),
+    userType: Yup.string().required().max(20),
   });
   useEffect(() => {
     if (isSubmitted) {
       if (!loading && error) {
-        createToast(error, 'error');
+        toast.error(error, {
+          position: 'bottom-right',
+          autoClose: 10000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
       }
       if (!loading && !error) {
         setIsSubmitted(false);
@@ -96,7 +105,7 @@ const CreateUserForm = () => {
           <Form className="formContainer" autoComplete="off">
             <FormGroup as={Row} className="mb-3">
               <FormLabel htmlFor="firstName" column sm="3">
-                <sup className="required-icon">*</sup>First Name
+                First Name
               </FormLabel>
               <Col sm="9">
                 <Field
@@ -111,7 +120,7 @@ const CreateUserForm = () => {
 
             <FormGroup as={Row} className="mb-3">
               <FormLabel htmlFor="lastName" column sm="3">
-                <sup className="required-icon">*</sup>Last Name
+                Last Name
               </FormLabel>
               <Col sm="9">
                 <Field
@@ -126,7 +135,7 @@ const CreateUserForm = () => {
 
             <FormGroup as={Row} className="mb-3">
               <FormLabel htmlFor="dateOfBirth" column sm="3">
-                <sup className="required-icon">*</sup>Date Of Birth
+                Date Of Birth
               </FormLabel>
               <Col sm="9">
                 <Field type="date" id="dateOfBirth" name="dateOfBirth" className="form-control" />
@@ -136,7 +145,7 @@ const CreateUserForm = () => {
 
             <FormGroup as={Row} className="mb-3">
               <FormLabel htmlFor="gender" column sm="3" className="mt-1">
-                <sup className="required-icon">*</sup>Gender
+                Gender
               </FormLabel>
               <Col sm="9">
                 <Row className="mt-2">
@@ -161,7 +170,7 @@ const CreateUserForm = () => {
 
             <FormGroup as={Row} className="mb-3">
               <FormLabel htmlFor="joinedDate" column sm="3">
-                <sup className="required-icon">*</sup>Joined Date
+                Joined Date
               </FormLabel>
               <Col sm="9">
                 <Field type="date" id="joinedDate" name="joinedDate" className="form-control" />
@@ -171,12 +180,12 @@ const CreateUserForm = () => {
 
             <FormGroup as={Row} className="mb-3">
               <FormLabel htmlFor="userType" column sm="3">
-                <sup className="required-icon">*</sup>Type
+                Type
               </FormLabel>
               <Col sm="9">
                 <Field component="select" id="userType" name="userType" className="custom-select">
-                  <option value="Staff">Staff</option>
                   <option value="Admin">Admin</option>
+                  <option value="Staff">Staff</option>
                 </Field>
                 <ErrorMessage name="userType" component="span" className="error-message" />
               </Col>

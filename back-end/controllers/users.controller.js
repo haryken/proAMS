@@ -2,7 +2,13 @@ const { StatusCodes } = require('http-status-codes');
 const createError = require('http-errors');
 const { generateJWTToken } = require('../utils/generateJWTToken');
 const { createUsername } = require('../utils/user.util');
-const { createUser, countUser, userLogin } = require('../services/users.service');
+const {
+  createUser,
+  countUser,
+  userLogin,
+  editUser,
+  getUser,
+} = require('../services/users.service');
 
 const userLoginHandler = async (req, res, next) => {
   const { username, password } = req.body;
@@ -29,7 +35,7 @@ const userLoginHandler = async (req, res, next) => {
 const createUserHandler = async (req, res, next) => {
   const user = req.body;
   const { firstName, lastName } = req.body;
-  const location = req.user.userLocation;
+  const location = 'HCM';
   const count = await countUser();
   if (count >= 9999) {
     return next(
@@ -40,7 +46,29 @@ const createUserHandler = async (req, res, next) => {
   const userCreated = await createUser(user, username, location);
   return res.status(StatusCodes.CREATED).json(userCreated);
 };
+
+const editUserHandler = async (req, res, next) => {
+  const { id } = req.body;
+  let user = await getUser(id);
+  if (!user || user.disabled) {
+    return next(createError(StatusCodes.NOT_FOUND, 'The record with this ID does not exist'));
+  }
+  user = await editUser(req.body);
+  return res.status(StatusCodes.OK).json(user);
+};
+
+const getUserHandler = async (req, res, next) => {
+  const { id } = req.params;
+  const user = await getUser(id);
+  if (!user || user.disabled) {
+    return next(createError(StatusCodes.NOT_FOUND, 'The record with this ID does not exist'));
+  }
+  return res.status(StatusCodes.OK).json(user);
+};
+
 module.exports = {
   userLoginHandler,
   createUserHandler,
+  editUserHandler,
+  getUserHandler,
 };

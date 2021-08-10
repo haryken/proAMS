@@ -17,19 +17,18 @@ const userLogin = async (userDetails) => {
   if (!existedUser || !compare(password, existedUser.password)) {
     return false;
   }
-
   return existedUser;
 };
 
-const getUser = async (id) => Users.findByPk(id);
+const getUser = async (id) => {
+  const user = await Users.findByPk(id);
+  return user;
+};
 
 const updateStaffCode = async (id) => {
   const user = await getUser(id);
-
   user.staffCode = createStaffCode(Number(id));
-
   await user.save();
-
   return getUser(id);
 };
 
@@ -63,6 +62,17 @@ const arrayUsername = (username) =>
 
 const countUser = () => Users.count();
 
+const editUser = async (data) => {
+  const { id, dateOfBirth, gender, joinedDate, userType } = data;
+  const user = await getUser(Number(id));
+  user.dateOfBirth = dateOfBirth;
+  user.gender = gender;
+  user.joinedDate = joinedDate;
+  user.userType = userType;
+  await user.save();
+  return getUser(Number(id));
+};
+
 module.exports = {
   createUser,
   arrayUsername,
@@ -70,4 +80,5 @@ module.exports = {
   getUser,
   countUser,
   userLogin,
+  editUser,
 };

@@ -44,7 +44,9 @@ stages:
       workingDirectory: $(clientFolder)
       displayName: 'Install packages'
     
-    - script: yarn build
+    - script: |
+        yarn build
+        copy .htaccess build/.htaccess
       workingDirectory: $(clientFolder)
       displayName: 'Build React App'
 
